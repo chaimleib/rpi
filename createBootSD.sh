@@ -15,8 +15,18 @@ function ensureDest() {
 }
 
 function cleanUp() {
+    countZipped
+    countUnzipped
+}
+
+function countZipped() {
     ls "$dest_dir/"*.zip
     echo "`ls "$dest_dir/"*.zip | wc -l | xargs` zipped image(s)"
+}
+
+function countUnzipped() {
+    ls "$dest_dir/"*.img
+    echo "`ls "$dest_dir/"*.img | wc -l | xargs` expanded image(s)"
 }
 
 function getUriFilename() {
@@ -36,10 +46,10 @@ function getUriFilename() {
 
     return 1
 }
+filename="$(getUriFilename $uri)"
 
 function ensureDownloaded() {
     pushd "$dest_dir" &>/dev/null
-    filename="$(getUriFilename $uri)"
     if [[ $? != 0 ]]; then
         echo "Could not see server!"
         return 1
@@ -71,9 +81,26 @@ function ensureDownloaded() {
     popd &>/dev/null
 }
 
+function expandImg() {
+    pushd "$dest_dir" &>/dev/null
+    
+    
+    if ! [[ -e "${filename%zip}img" ]]; then 
+        echo "Expanding $filename ..."
+        tar xvf "$filename" &&
+            echo "Finished expanding" ||
+            (echo "Failed to expand" && return 1)
+    else
+        echo "Already expanded"
+    fi
+    
+    popd &>/dev/null
+}
+
 
 if [[ "$0" != "-bash" ]]; then
     ensureDest &&
-    ensureDownloaded
+    ensureDownloaded &&
+	expandImg
     cleanUp
 fi

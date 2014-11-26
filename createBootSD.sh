@@ -97,6 +97,14 @@ function expandImg() {
     popd &>/dev/null
 }
 
+function getAllDiskNames() {
+    if [[ -e /dev/disk0 ]]; then
+        echo "$(ls /dev/disk* | grep -v '[0-9]s[0-9]' 2>/dev/null)"
+    else
+        echo "$(ls /dev/{s,h}d{a..z}* /dev/mmc*)"
+    fi
+}
+
 
 if [[ -e "$0" ]]; then
     ensureDest &&

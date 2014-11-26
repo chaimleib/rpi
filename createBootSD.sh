@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$0" != "-bash" ]]; then
+if [[ -e "$0" ]]; then
     this_dir=$(dirname "$0")
     this_dir="$(pushd "$this_dir" &>/dev/null ; pwd ; popd &>/dev/null)"
     dest_dir="$this_dir/downloaded-packages"
@@ -98,7 +98,7 @@ function expandImg() {
 }
 
 
-if [[ "$0" != "-bash" ]]; then
+if [[ -e "$0" ]]; then
     ensureDest &&
     ensureDownloaded &&
 	expandImg

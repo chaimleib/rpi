@@ -51,14 +51,14 @@ filename="$(getUriFilename $uri)"
 function ensureDownloaded() {
     pushd "$dest_dir" &>/dev/null
     if [[ $? != 0 ]]; then
-        echo "Could not see server!"
+        echo "Could not see download folder!"
         return 1
     fi
-    
+
     # check if we already have a complete latest file
     if [[ -f "$filename" ]]; then
         echo "Found $filename. Verifying structure..."
-        if unzip -tq "$filename" &>/dev/null; then 
+        if unzip -tq "$filename" &>/dev/null; then
             echo "$filename is valid!"
         else
             echo "$filename is not complete. Resuming download..."
@@ -83,17 +83,23 @@ function ensureDownloaded() {
 
 function expandImg() {
     pushd "$dest_dir" &>/dev/null
-    
-    
-    if ! [[ -e "${filename%zip}img" ]]; then 
+    if [[ $? != 0 ]]; then
+        echo "Could not see download folder!"
+        return 1
+    fi
+
+    if ! [[ -e "${filename%zip}img" ]]; then
         echo "Expanding $filename ..."
-        tar xvf "$filename" &&
-            echo "Finished expanding" ||
-            (echo "Failed to expand" && return 1)
+        if tar xvf "$filename"; then
+            echo "Finished expanding"
+        else
+            echo "Failed to expand"
+            return 1
+        fi
     else
         echo "Already expanded"
     fi
-    
+
     popd &>/dev/null
 }
 
@@ -109,6 +115,6 @@ function getAllDiskNames() {
 if [[ -e "$0" ]]; then
     ensureDest &&
     ensureDownloaded &&
-	expandImg
+    expandImg
     cleanUp
 fi
